@@ -1,19 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getFFInfo, SERVERS } from "@/lib/ffinfo.functions";
+import { getFFInfo, SERVERS, SERVER_LABELS } from "@/lib/ffinfo.functions";
 import { buildSummary, creditStatus, petName } from "@/lib/ffinfo-format";
+import logo from "@/assets/christus-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Free Fire Info API — profil joueur par UID" },
+      { title: "Christus Store — Free Fire Info API par UID" },
       {
         name: "description",
         content:
-          "API Free Fire Info : profil complet d'un joueur (niveau, rang BR/CS, pet, clan, credit score) à partir de son UID et de son serveur.",
+          "Christus Store : profil Free Fire complet (niveau, rang BR/CS, pet, clan, credit score) à partir d'un UID, sur tous les serveurs.",
       },
-      { property: "og:title", content: "Free Fire Info API — profil joueur par UID" },
+      { property: "og:title", content: "Christus Store — Free Fire Info API par UID" },
       {
         property: "og:description",
         content:
