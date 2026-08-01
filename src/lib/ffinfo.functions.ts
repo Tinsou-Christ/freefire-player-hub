@@ -20,6 +20,6 @@ export const getFFInfo = createServerFn({ method: "GET" })
     );
     if (!res.ok) throw new Error("Impossible de récupérer les données Free Fire.");
     const json = (await res.json()) as Record<string, any>;
-    if (!json?.basicinfo) throw new Error("Joueur introuvable.");
+    if (!json?.["basicinfo"]) throw new Error("Joueur introuvable.");
     return { uid: data.uid, server: data.server, raw: json };
   });
