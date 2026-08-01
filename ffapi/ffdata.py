@@ -1,24 +1,61 @@
-"""Données de référence et helpers de formatage pour l'API Free Fire Info."""
+"""Données de référence et helpers de formatage pour l'API Christus Store — Free Fire Info."""
 
+import os
 from datetime import datetime, timedelta, timezone
 
-UPSTREAM_INFO_URL = "https://ffapii.vercel.app/get_player_personal_show"
+# Sources upstream (essayées dans l'ordre, avec bascule automatique).
+UPSTREAM_INFO_URL = os.environ.get(
+    "FF_UPSTREAM_URL", "https://ffapii.vercel.app/get_player_personal_show"
+)
+COMMUNITY_INFO_URL = "https://developers.freefirecommunity.com/api/v1/info"
+COMMUNITY_API_KEY = os.environ.get("FF_API_KEY", "").strip()
+USER_AGENT = "ChristusStore-FFInfo/2.0 (+https://christus.store)"
+
 UPSTREAM_IMAGE_URL = "https://profile.thug4ff.com/api/profile"
 
+# Tous les serveurs Free Fire (codes officiels + alias régionaux).
 SERVERS = {
-    "SG": "sg",
+    "IND": "ind",
     "BD": "bd",
-    "RU": "ru",
+    "PK": "pk",
+    "SG": "sg",
     "ID": "id",
     "TW": "tw",
-    "US": "us",
     "VN": "vn",
     "TH": "th",
     "ME": "me",
-    "PK": "pk",
+    "MEA": "me",
+    "RU": "ru",
     "CIS": "cis",
+    "EU": "eu",
+    "EUROPE": "eu",
+    "US": "us",
+    "NA": "na",
     "BR": "br",
-    "IND": "ind",
+    "SAC": "sac",
+    "LATAM": "sac",
+}
+
+SERVER_LABELS = {
+    "IND": "Inde",
+    "BD": "Bangladesh",
+    "PK": "Pakistan",
+    "SG": "Singapour",
+    "ID": "Indonésie",
+    "TW": "Taïwan",
+    "VN": "Vietnam",
+    "TH": "Thaïlande",
+    "ME": "Moyen-Orient",
+    "MEA": "Moyen-Orient & Afrique",
+    "RU": "Russie",
+    "CIS": "CIS",
+    "EU": "Europe",
+    "EUROPE": "Europe",
+    "US": "États-Unis",
+    "NA": "Amérique du Nord",
+    "BR": "Brésil",
+    "SAC": "Amérique du Sud",
+    "LATAM": "Amérique latine",
 }
 
 PET_NAMES = {
@@ -33,6 +70,11 @@ PET_NAMES = {
     1300000049: "Moony",
     1300000050: "Dreki",
     1300000051: "Arvon",
+    1300000071: "Sensei Tig",
+    1300000072: "Kitty",
+    1300000073: "Dr. Beanie",
+    1300000074: "Robo",
+    1300000075: "Agent Hop",
 }
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -47,6 +89,26 @@ _ENUM_PREFIXES = (
     "EXTERNALICONSTATUS",
     "EXTERNALICONSHOWTYPE",
 )
+
+
+def normalize_keys(value):
+    """Uniformise les clés (camelCase -> minuscules) pour supporter toutes les sources."""
+    if isinstance(value, dict):
+        return {str(k).lower(): normalize_keys(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [normalize_keys(v) for v in value]
+    return value
+
+
+def as_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def pet_name(pet_id):
+    return PET_NAMES.get(as_int(pet_id), "Unknown")
 
 
 def unix(ts):
@@ -68,7 +130,8 @@ def clean_enum(value):
 
 
 def credit_status(score):
-    if not isinstance(score, int):
+    score = as_int(score)
+    if score is None:
         return "Unknown"
     if score >= 90:
         return "Excellent 🟢"
@@ -88,11 +151,10 @@ def build_summary(data, server_key):
     c = data.get("creditscoreinfo") or {}
     clan = data.get("clanbasicinfo") or {}
 
-    pet_name = PET_NAMES.get(p.get("id"), "Unknown")
     skills = pr.get("equipedskills") or []
-    score = c.get("creditscore")
+    score = as_int(c.get("creditscore"))
     safe = "Unknown"
-    if isinstance(score, int):
+    if score is not None:
         safe = "Yes ✅" if score >= 90 else "No ⚠️"
 
     sep = "━━━━━━━━━━━━━"
@@ -148,7 +210,7 @@ def build_summary(data, server_key):
             "",
             sep,
             "🐾 PET",
-            f"• Name: {pet_name}",
+            f"• Name: {pet_name(p.get('id'))}",
             f"• Pet ID: {p.get('id') or 'N/A'}",
             f"• Level: {p.get('level') or 'N/A'}",
             f"• EXP: {p.get('exp') or 'N/A'}",
