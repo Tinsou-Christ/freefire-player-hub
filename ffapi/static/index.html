@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Free Fire Info API — recherche joueur par UID</title>
+    <title>Christus Store — Free Fire Info API (recherche par UID)</title>
     <meta
       name="description"
-      content="API Free Fire Info : consultez le profil complet d'un joueur (rang, pet, clan, credit score) à partir de son UID et de son serveur."
+      content="Christus Store : API Free Fire Info. Profil complet d'un joueur (rang, pet, clan, credit score) à partir de son UID, sur tous les serveurs."
     />
+    <link rel="icon" type="image/png" href="/static/logo.png" />
     <style>
       :root {
         --bg: #07090f;
@@ -16,32 +17,34 @@
         --line: #232b3d;
         --text: #eef2ff;
         --muted: #93a0bd;
-        --accent: #ff8a1f;
-        --accent-2: #ff3d5e;
+        --accent: #ffb020;
+        --accent-2: #e6321f;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
         background:
-          radial-gradient(1000px 600px at 80% -10%, rgba(255, 138, 31, 0.18), transparent 60%),
-          radial-gradient(800px 500px at 0% 10%, rgba(255, 61, 94, 0.14), transparent 60%),
+          radial-gradient(1000px 600px at 80% -10%, rgba(255, 176, 32, 0.18), transparent 60%),
+          radial-gradient(800px 500px at 0% 10%, rgba(230, 50, 31, 0.14), transparent 60%),
           var(--bg);
         color: var(--text);
         min-height: 100vh;
       }
       .wrap { max-width: 940px; margin: 0 auto; padding: 40px 18px 64px; }
       header { text-align: center; margin-bottom: 28px; }
+      header img.logo { width: 92px; height: 92px; object-fit: contain; }
       h1 {
-        font-size: clamp(28px, 6vw, 44px);
-        margin: 0 0 8px;
+        font-size: clamp(26px, 5.6vw, 42px);
+        margin: 10px 0 6px;
         background: linear-gradient(90deg, var(--accent), var(--accent-2));
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
         letter-spacing: -0.5px;
       }
-      header p { color: var(--muted); margin: 0; }
+      .kicker { color: var(--accent); font-weight: 700; letter-spacing: 3px; font-size: 12px; text-transform: uppercase; }
+      header p { color: var(--muted); margin: 6px 0 0; }
       .card {
         background: var(--panel);
         border: 1px solid var(--line);
@@ -90,13 +93,16 @@
       .endpoints li { margin-bottom: 8px; color: var(--muted); }
       .err { color: #ff8a9c; }
       .hidden { display: none; }
+      footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <header>
-        <h1>🎮 Free Fire Info API</h1>
-        <p>Profil complet d'un joueur à partir de son UID — même données que la commande <code>ffinfo</code>.</p>
+        <img class="logo" src="/static/logo.png" alt="Logo Christus Store" width="92" height="92" />
+        <div class="kicker">Christus Store</div>
+        <h1>Free Fire Info API</h1>
+        <p>Profil complet d'un joueur à partir de son UID — mêmes données que la commande <code>ffinfo</code>.</p>
       </header>
 
       <section class="card">
@@ -133,6 +139,8 @@
           <li><code>GET /api/servers</code> · <code>GET /health</code></li>
         </ul>
       </section>
+
+      <footer>© Christus Store — Free Fire Info API</footer>
     </div>
 
     <script>
@@ -142,8 +150,14 @@
       fetch("/api/servers")
         .then((r) => r.json())
         .then((d) => {
+          const labels = d.labels || {};
           $("server").innerHTML = d.servers
-            .map((s) => `<option value="${s}"${s === "IND" ? " selected" : ""}>${s}</option>`)
+            .map(
+              (s) =>
+                `<option value="${s}"${s === "IND" ? " selected" : ""}>${s}${
+                  labels[s] ? " — " + labels[s] : ""
+                }</option>`,
+            )
             .join("");
           if (params.get("server")) $("server").value = params.get("server").toUpperCase();
           if (params.get("uid")) {

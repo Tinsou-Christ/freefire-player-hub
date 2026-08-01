@@ -77,21 +77,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Christus Store — Free Fire Info API" },
+      {
+        name: "description",
+        content:
+          "Christus Store : API Free Fire Info, profil complet d'un joueur par UID sur tous les serveurs.",
+      },
+      { name: "author", content: "Christus Store" },
+      { property: "og:title", content: "Christus Store — Free Fire Info API" },
+      {
+        property: "og:description",
+        content: "Profil Free Fire complet par UID, sur tous les serveurs.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
     ],
   }),
   shellComponent: RootShell,

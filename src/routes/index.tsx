@@ -1,19 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { getFFInfo, SERVERS } from "@/lib/ffinfo.functions";
+import { getFFInfo, SERVERS, SERVER_LABELS } from "@/lib/ffinfo.functions";
 import { buildSummary, creditStatus, petName } from "@/lib/ffinfo-format";
+import logo from "@/assets/christus-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Free Fire Info API — profil joueur par UID" },
+      { title: "Christus Store — Free Fire Info API par UID" },
       {
         name: "description",
         content:
-          "API Free Fire Info : profil complet d'un joueur (niveau, rang BR/CS, pet, clan, credit score) à partir de son UID et de son serveur.",
+          "Christus Store : profil Free Fire complet (niveau, rang BR/CS, pet, clan, credit score) à partir d'un UID, sur tous les serveurs.",
       },
-      { property: "og:title", content: "Free Fire Info API — profil joueur par UID" },
+      { property: "og:title", content: "Christus Store — Free Fire Info API par UID" },
       {
         property: "og:description",
         content:
@@ -70,6 +71,16 @@ function Index() {
     <main className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto w-full max-w-3xl">
         <header className="mb-8 text-center">
+          <img
+            src={logo}
+            alt="Logo Christus Store"
+            width={96}
+            height={96}
+            className="mx-auto h-24 w-24 object-contain"
+          />
+          <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] text-primary">
+            Christus Store
+          </p>
           <h1
             className="text-4xl font-extrabold tracking-tight"
             style={{
@@ -79,7 +90,7 @@ function Index() {
               color: "transparent",
             }}
           >
-            🎮 Free Fire Info API
+            Free Fire Info API
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Profil complet d'un joueur via son UID — mêmes données que la commande{" "}
@@ -108,6 +119,7 @@ function Index() {
             {SERVERS.map((s) => (
               <option key={s} value={s}>
                 {s}
+                {SERVER_LABELS[s] ? ` — ${SERVER_LABELS[s]}` : ""}
               </option>
             ))}
           </select>
