@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Free Fire Info API — recherche joueur par UID</title>
+    <meta
+      name="description"
+      content="API Free Fire Info : consultez le profil complet d'un joueur (rang, pet, clan, credit score) à partir de son UID et de son serveur."
+    />
+    <style>
+      :root {
+        --bg: #07090f;
+        --panel: #10141f;
+        --panel-2: #161c2b;
+        --line: #232b3d;
+        --text: #eef2ff;
+        --muted: #93a0bd;
+        --accent: #ff8a1f;
+        --accent-2: #ff3d5e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background:
+          radial-gradient(1000px 600px at 80% -10%, rgba(255, 138, 31, 0.18), transparent 60%),
+          radial-gradient(800px 500px at 0% 10%, rgba(255, 61, 94, 0.14), transparent 60%),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      .wrap { max-width: 940px; margin: 0 auto; padding: 40px 18px 64px; }
+      header { text-align: center; margin-bottom: 28px; }
+      h1 {
+        font-size: clamp(28px, 6vw, 44px);
+        margin: 0 0 8px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        letter-spacing: -0.5px;
+      }
+      header p { color: var(--muted); margin: 0; }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 18px;
+      }
+      form { display: flex; gap: 10px; flex-wrap: wrap; }
+      input, select, button {
+        font: inherit;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 13px 14px;
+        outline: none;
+      }
+      input { flex: 1 1 220px; min-width: 0; }
+      input:focus, select:focus { border-color: var(--accent); }
+      button {
+        flex: 0 0 auto;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        color: #1a0d00;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+      button:disabled { opacity: 0.6; cursor: wait; }
+      .head { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+      .head img {
+        width: 96px; height: 96px; border-radius: 14px; object-fit: cover;
+        border: 1px solid var(--line); background: var(--panel-2);
+      }
+      .name { font-size: 22px; font-weight: 700; }
+      .muted { color: var(--muted); font-size: 14px; }
+      .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 16px; }
+      .stat { background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+      .stat span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; }
+      .stat b { font-size: 17px; }
+      pre {
+        white-space: pre-wrap; word-break: break-word; margin: 0;
+        background: #0b0f18; border: 1px solid var(--line); border-radius: 14px;
+        padding: 16px; font-size: 13.5px; line-height: 1.55; max-height: 520px; overflow: auto;
+      }
+      code { background: var(--panel-2); padding: 2px 7px; border-radius: 6px; font-size: 13px; }
+      .endpoints li { margin-bottom: 8px; color: var(--muted); }
+      .err { color: #ff8a9c; }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>🎮 Free Fire Info API</h1>
+        <p>Profil complet d'un joueur à partir de son UID — même données que la commande <code>ffinfo</code>.</p>
+      </header>
+
+      <section class="card">
+        <form id="form">
+          <input id="uid" inputmode="numeric" placeholder="UID du joueur (ex : 1234567890)" required />
+          <select id="server"></select>
+          <button id="submit" type="submit">Rechercher</button>
+        </form>
+        <p id="status" class="muted" style="margin: 12px 0 0"></p>
+      </section>
+
+      <section id="result" class="card hidden">
+        <div class="head">
+          <img id="avatar" alt="Photo de profil du joueur" />
+          <div>
+            <div class="name" id="nick"></div>
+            <div class="muted" id="sub"></div>
+          </div>
+        </div>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <section id="summaryCard" class="card hidden">
+        <pre id="summary"></pre>
+      </section>
+
+      <section class="card">
+        <h2 style="margin-top: 0; font-size: 18px">Endpoints</h2>
+        <ul class="endpoints">
+          <li><code>GET /api/ffinfo?uid=UID&amp;server=IND</code> — JSON complet + résumé</li>
+          <li><code>GET /api/ffinfo/text?uid=UID&amp;server=IND</code> — texte brut (format ffinfo)</li>
+          <li><code>GET /api/ffinfo?q=UID | IND</code> — format de la commande</li>
+          <li><code>GET /api/profile-image?uid=UID</code> — image de profil</li>
+          <li><code>GET /api/servers</code> · <code>GET /health</code></li>
+        </ul>
+      </section>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const params = new URLSearchParams(location.search);
+
+      fetch("/api/servers")
+        .then((r) => r.json())
+        .then((d) => {
+          $("server").innerHTML = d.servers
+            .map((s) => `<option value="${s}"${s === "IND" ? " selected" : ""}>${s}</option>`)
+            .join("");
+          if (params.get("server")) $("server").value = params.get("server").toUpperCase();
+          if (params.get("uid")) {
+            $("uid").value = params.get("uid");
+            $("form").requestSubmit();
+          }
+        });
+
+      $("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const uid = $("uid").value.trim();
+        const server = $("server").value;
+        $("submit").disabled = true;
+        $("status").className = "muted";
+        $("status").textContent = "Recherche en cours…";
+        try {
+          const res = await fetch(`/api/ffinfo?uid=${encodeURIComponent(uid)}&server=${server}`);
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || "Erreur inconnue");
+          const p = data.player;
+          $("nick").textContent = p.nickname ?? "—";
+          $("sub").textContent = `UID ${data.uid} · Serveur ${data.server} · Région ${p.region ?? "—"}`;
+          $("avatar").src = data.profileImage;
+          $("stats").innerHTML = [
+            ["Niveau", p.level],
+            ["Likes", p.likes],
+            ["Rang BR", p.brRank],
+            ["Rang CS", p.csRank],
+            ["Pet", p.petName],
+            ["Clan", p.clan || "Aucun"],
+            ["Credit score", p.creditScore ?? "N/A"],
+            ["Statut", p.creditStatus],
+          ]
+            .map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v ?? "—"}</b></div>`)
+            .join("");
+          $("summary").textContent = data.summary;
+          $("result").classList.remove("hidden");
+          $("summaryCard").classList.remove("hidden");
+          $("status").textContent = "";
+        } catch (err) {
+          $("result").classList.add("hidden");
+          $("summaryCard").classList.add("hidden");
+          $("status").className = "err";
+          $("status").textContent = err.message;
+        } finally {
+          $("submit").disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
