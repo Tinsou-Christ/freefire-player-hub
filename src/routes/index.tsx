@@ -71,6 +71,16 @@ function Index() {
     <main className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto w-full max-w-3xl">
         <header className="mb-8 text-center">
+          <img
+            src={logo}
+            alt="Logo Christus Store"
+            width={96}
+            height={96}
+            className="mx-auto h-24 w-24 object-contain"
+          />
+          <p className="mt-2 text-xs font-bold uppercase tracking-[0.25em] text-primary">
+            Christus Store
+          </p>
           <h1
             className="text-4xl font-extrabold tracking-tight"
             style={{
@@ -80,7 +90,7 @@ function Index() {
               color: "transparent",
             }}
           >
-            🎮 Free Fire Info API
+            Free Fire Info API
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Profil complet d'un joueur via son UID — mêmes données que la commande{" "}
@@ -109,6 +119,7 @@ function Index() {
             {SERVERS.map((s) => (
               <option key={s} value={s}>
                 {s}
+                {SERVER_LABELS[s] ? ` — ${SERVER_LABELS[s]}` : ""}
               </option>
             ))}
           </select>
